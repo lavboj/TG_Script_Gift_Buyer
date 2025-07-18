@@ -14,13 +14,13 @@ def gift_parameters(gift) -> dict:
 # Функция возвращает словарь с ключами, соответствующими различным атрибутам подарка
 
 async def gift_filter(
-        bot,
+        client,
         min_price,
         max_price,
         min_supply,
 )-> list:
     
-    api_gifts = await bot(functions.payments.GetStarGiftsRequest(hash=0))
+    api_gifts = await client(functions.payments.GetStarGiftsRequest(hash=0))
 
     filtered_gifts = []
     for gift in api_gifts.gifts:
