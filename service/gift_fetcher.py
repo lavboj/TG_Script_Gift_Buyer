@@ -17,7 +17,7 @@ async def gift_filter(
         client,
         min_price,
         max_price,
-        min_supply,
+        max_supply
 )-> list:
     
     api_gifts = await client(functions.payments.GetStarGiftsRequest(hash=0))
@@ -34,8 +34,8 @@ async def gift_filter(
         if not is_limited or sold_out:
             continue
 
-        if min_price <= price <= max_price and min_supply <= supply:
-            filtered_gifts.append(gift)
+        if min_price <= price <= max_price and supply <= max_supply:
+            filtered_gifts.append(params)
 
     return filtered_gifts
 
