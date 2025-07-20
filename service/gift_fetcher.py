@@ -1,3 +1,4 @@
+import logging
 from telethon import functions
 
 def gift_parameters(gift) -> dict:
@@ -20,22 +21,32 @@ async def gift_filter(
         max_supply
 )-> list:
     
-    api_gifts = await client(functions.payments.GetStarGiftsRequest(hash=0))
+    try:
+        api_gifts = await client(functions.payments.GetStarGiftsRequest(hash=0))
+    except Exception as e:
+        logging.error(f"Ошибка при получении подарков: {e}")
+        return []
 
     filtered_gifts = []
+
+
     for gift in api_gifts.gifts:
-        params = gift_parameters(gift)
+        try:
+            params = gift_parameters(gift)
 
-        price = params.get("price")
-        sold_out = params.get("sold_out")
-        is_limited = params.get("limited")
-        supply = params.get("availability")
+            price = params.get("price")
+            sold_out = params.get("sold_out")
+            is_limited = params.get("limited")
+            total = params.get("total")
 
-        if not is_limited or sold_out:
+            if not is_limited or sold_out:
+                continue
+
+            if min_price <= price <= max_price and total <= max_supply:
+                filtered_gifts.append(params)
+        except Exception as e:
+            logging.error(f"Ошибка при обработке подарка: {e}")
             continue
-
-        if min_price <= price <= max_price and supply <= max_supply:
-            filtered_gifts.append(params)
 
     return filtered_gifts
 
@@ -44,7 +55,7 @@ async def gift_filter(
 
 
 
-    
+
 
 
         
