@@ -1,5 +1,7 @@
 import logging
-from telethon import functions
+from telethon import functions, errors
+
+from utils.retry import make_retry_wrapper
 
 def gift_parameters(gift) -> dict:
     return {
@@ -14,6 +16,17 @@ def gift_parameters(gift) -> dict:
 # Этот модуль содержит функцию gift_parameters, которая извлекает параметры подарка из объекта gift.
 # Функция возвращает словарь с ключами, соответствующими различным атрибутам подарка
 
+@make_retry_wrapper(
+    max_retries=3,
+    delay=1,
+    retry_exceptions=(
+        errors.FloodWaitError,
+        errors.ServerError,
+        errors.TimeoutError,
+        ConnectionError,
+        errors.RPCError
+    )
+)
 async def gift_filter(
         client,
         min_price,
@@ -21,14 +34,9 @@ async def gift_filter(
         max_supply
 )-> list:
     
-    try:
-        api_gifts = await client(functions.payments.GetStarGiftsRequest(hash=0))
-    except Exception as e:
-        logging.error(f"Ошибка при получении подарков: {e}")
-        return []
+    api_gifts = await client(functions.payments.GetStarGiftsRequest(hash=0))
 
     filtered_gifts = []
-
 
     for gift in api_gifts.gifts:
         try:
