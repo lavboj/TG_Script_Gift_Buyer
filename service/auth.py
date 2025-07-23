@@ -1,8 +1,8 @@
 import logging
 from telethon import TelegramClient, errors
-import asyncio
 
 from utils import log_config
+from utils.retry import make_retry_wrapper
 
 log_config.setup_logging()
 
@@ -13,28 +13,46 @@ class ClientAuthenticator:
         self.api_hash = api_hash
         self.client = TelegramClient(self.session_name, self.api_id, self.api_hash)
 
-    async def connect(self, retries: int = 3, delay: int = 5):
-        for attempt in range(1, retries + 1):
-            try:
-                await self.client.start()
-                logging.info("Client connected successfully.")
-                return self.client
-            except (errors.RPCError, ConnectionError, asyncio.TimeoutError) as e:
-                logging.warning(f"Connection attempt {attempt}/{retries} failed: {e}")
-                if attempt < retries:
-                    await asyncio.sleep(delay)
-                else:
-                    logging.critical("Failed to connect after multiple attempts.")
-                    raise
+    @make_retry_wrapper(
+        max_retries=5,
+        delay=2,
+        retry_exceptions=(
+            errors.FloodWaitError,
+            errors.ServerError,
+            errors.TimeoutError,
+            ConnectionError,
+            errors.RPCError
+        )
+    )
+    async def connect(self):
+        await self.client.start()
+        logging.info("Client connected successfully.")
+        return self.client
     
+    @make_retry_wrapper(
+        max_retries=5,
+        delay=2,
+        retry_exceptions=(
+            errors.FloodWaitError,
+            errors.ServerError,
+            errors.TimeoutError,
+            ConnectionError,
+            errors.RPCError
+        )
+    )
     async def get_input_peer(self):
-        try:
-            session = await self.client.get_me()
-            peer = await self.client.get_input_entity(session)
-            return peer
-        except (errors.RPCError, ConnectionError, asyncio.TimeoutError) as e:
-            logging.error(f"Failed to get input peer: {e}")
-            raise
+        session = await self.client.get_me()
+        peer = await self.client.get_input_entity(session)
+        logging.info("Peer created successfully.")
+        return peer
+    
+    async def disconnect(self):
+        if self.client.is_connected():
+            try:
+                await self.client.disconnect()
+                logging.info("Client disconnected successfully.")
+            except Exception as e:
+                logging.error(f"Error during client disconnection: {e}")
 
 
 # Этот модуль отвечает за аутентификацию клиента в Telegram через Telethon.
