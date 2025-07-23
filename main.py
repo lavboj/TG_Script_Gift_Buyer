@@ -34,6 +34,8 @@ async def start_script(api_id, api_hash):
     #Основной цикл который вводит скрипт в сканирование подарков и их покупку
     while True:
         # Получение списка подарков по заданным параметрам
+        if not client.is_connected():
+            break
         try:
             gift_list = await gift_fetcher.gift_filter(client, 200, 2000, 250000)
             balance = await get_star_balance(client, peer)
