@@ -23,3 +23,11 @@ def make_retry_wrapper(max_retries=3, delay=1, retry_exceptions=()):
             raise RuntimeError(f"Максимальное количество попыток ({max_retries}) исчерпано для {func.__name__}")
         return wrapper
     return decorator
+
+"""
+Модуль с реализацией retry-декоратора для асинхронных функций.
+
+Позволяет автоматически повторять выполнение функции при возникновении указанных исключений,
+в том числе с поддержкой обработки `FloodWaitError` от Telethon.
+
+"""
