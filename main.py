@@ -20,7 +20,7 @@ async def start_script(api_id, api_hash):
         client = await auth_client.connect()
 
         #Создание peer канала и peer пользователя
-        channel_peer = await client.get_input_entity('lavbojznft')
+        channel_peer = await client.get_input_entity(CHANNEL_NAME)
         peer = await auth_client.get_input_peer()
     except RuntimeError as e:
         logging.critical(f"Ошибка при подключении к Telegram: {e}")
@@ -77,6 +77,11 @@ if __name__ == "__main__":
     load_dotenv()
     API_HASH = os.getenv('API_HASH')
     API_ID = int(os.getenv('API_ID'))
+    CHANNEL_NAME = os.getenv('CHANNEL_NAME')
+
+    if not API_HASH or not API_ID or not CHANNEL_NAME:
+        logging.critical("API_ID или API_HASH или CHANNEL_NAME не заданы в .env")
+        sys.exit(1)
 
     asyncio.run(start_script(API_ID, API_HASH))
 
