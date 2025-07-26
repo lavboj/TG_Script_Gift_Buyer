@@ -2,7 +2,7 @@ import logging
 from telethon import TelegramClient, errors
 
 from utils import log_config
-from utils.retry import make_retry_wrapper
+from utils.error_wrapper import error_wrapper
 
 log_config.setup_logging()
 
@@ -13,9 +13,7 @@ class ClientAuthenticator:
         self.api_hash = api_hash
         self.client = TelegramClient(self.session_name, self.api_id, self.api_hash)
 
-    @make_retry_wrapper(
-        max_retries=5,
-        delay=2,
+    @error_wrapper(
         retry_exceptions=(
             errors.FloodWaitError,
             errors.ServerError,
@@ -29,9 +27,7 @@ class ClientAuthenticator:
         logging.info("Client connected successfully.")
         return self.client
     
-    @make_retry_wrapper(
-        max_retries=5,
-        delay=2,
+    @error_wrapper(
         retry_exceptions=(
             errors.FloodWaitError,
             errors.ServerError,

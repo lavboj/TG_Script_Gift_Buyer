@@ -1,11 +1,9 @@
 import logging
 from telethon import functions, types, errors
 
-from utils.retry import make_retry_wrapper
+from utils.error_wrapper import error_wrapper
 
-@make_retry_wrapper(
-    max_retries=3,
-    delay=1,
+@error_wrapper(
     retry_exceptions=(
         errors.FloodWaitError,
         errors.ServerError,
