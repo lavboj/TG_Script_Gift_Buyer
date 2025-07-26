@@ -12,3 +12,5 @@ def setup_logging(level=logging.INFO):
         style="{",
         datefmt="%d.%m.%Y %H:%M:%S"
     )
+    
+    logging.getLogger("telethon").setLevel(logging.WARNING)
