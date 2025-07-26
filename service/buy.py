@@ -19,7 +19,7 @@ async def buy_gift(client, peer, gift_id: int):
     logging.info(f"Form ID: {payment_form.form_id}")
     
     result = await client(functions.payments.SendStarsFormRequest(form_id=payment_form.form_id, invoice=invoice))
-    logging.info(f"Подарок c ID {gift_id} успешно куплен.")
+    logging.info(f"Gift with ID {gift_id} was successfully purchased.")
 
     return result
 

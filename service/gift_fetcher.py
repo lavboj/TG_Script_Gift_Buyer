@@ -48,7 +48,7 @@ async def gift_filter(
             if min_price <= price <= max_price and total <= max_supply:
                 filtered_gifts.append(params)
         except Exception as e:
-            logging.error(f"Ошибка при обработке подарка: {e}")
+            logging.error(f"Error while processing gift: {e}")
             continue
 
     return filtered_gifts

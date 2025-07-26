@@ -9,14 +9,13 @@ def error_wrapper(retry_exceptions=()):
                 return await func(*args, **kwargs)
             except retry_exceptions as e:
                 if isinstance(e, errors.FloodWaitError):
-                    logging.warning(f"⏳ Flood wait: ждём {e.seconds} секунд")
+                    logging.warning(f"Flood wait: waiting for {e.seconds} seconds")
                     await asyncio.sleep(e.seconds)
                 else:
-                    logging.error(f"Ошибка при выполнении {func.__name__}: {e}")
-                    
+                    logging.error(f"Error while executing {func.name}: {e}")
                     raise RuntimeError(f"{func.__name__}")
             except Exception as e:
-                logging.error(f"Необработанная ошибка при выполнении {func.__name__}: {e}")
+                logging.error(f"Unhandled exception while executing {func.name}: {e}")
                 raise RuntimeError(f"{func.__name__}")
         return wrapper
     return decorator
