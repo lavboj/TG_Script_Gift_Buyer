@@ -14,7 +14,7 @@ class ClientAuthenticator:
         self.client = TelegramClient(self.session_name, self.api_id, self.api_hash)
 
     @error_wrapper(
-        retry_exceptions=(
+        exceptions=(
             errors.FloodWaitError,
             errors.ServerError,
             errors.TimeoutError,
@@ -28,7 +28,7 @@ class ClientAuthenticator:
         return self.client
     
     @error_wrapper(
-        retry_exceptions=(
+        exceptions=(
             errors.FloodWaitError,
             errors.ServerError,
             errors.TimeoutError,

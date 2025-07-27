@@ -4,7 +4,7 @@ from telethon import functions, types, errors
 from utils.error_wrapper import error_wrapper
 
 @error_wrapper(
-    retry_exceptions=(
+    exceptions=(
         errors.FloodWaitError,
         errors.ServerError,
         errors.TimeoutError,

@@ -3,7 +3,7 @@ from telethon import functions, errors
 from utils.error_wrapper import error_wrapper
 
 @error_wrapper(
-    retry_exceptions=(
+    exceptions=(
         errors.FloodWaitError,
         errors.ServerError,
         errors.TimeoutError,

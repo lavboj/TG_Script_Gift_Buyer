@@ -14,7 +14,7 @@ def gift_parameters(gift) -> dict:
     }
 
 @error_wrapper(
-    retry_exceptions=(
+    exceptions=(
         errors.FloodWaitError,
         errors.ServerError,
         errors.TimeoutError,
