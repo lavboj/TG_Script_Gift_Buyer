@@ -3,6 +3,7 @@ import logging
 import asyncio
 import os
 import sys
+import json
 
 # Сторонние библиотеки
 from dotenv import load_dotenv
@@ -15,8 +16,13 @@ from utils import log_config
 
 log_config.setup_logging(level=logging.DEBUG) 
 
-async def start_script(api_id, api_hash, channel_name):
+async def start_script(api_id, api_hash, channel_name, config):
     client = None
+
+    min_price = config.get('min_price', 200)
+    max_price = config.get('max_price', 2000)
+    max_supply = config.get('max_supply', 250000)
+
     try:
         #Создание клиента и подключение к Telegram
         auth_client = auth.ClientAuthenticator('authClient', api_id, api_hash)
@@ -35,7 +41,7 @@ async def start_script(api_id, api_hash, channel_name):
                 logging.critical("Reconnection failed")
                 sys.exit(1)
             try:
-                gift_list = await gift_fetcher.gift_filter(client, 200, 2000, 250000)
+                gift_list = await gift_fetcher.gift_filter(client, min_price, max_price, max_supply)
                 balance = await get_star_balance(client, peer)
             except RuntimeError as e:
                 logging.error(f"Error: {e}")
@@ -87,12 +93,19 @@ if __name__ == "__main__":
     API_ID = int(os.getenv('API_ID'))
     CHANNEL_NAME = os.getenv('CHANNEL_NAME')
 
+    try:
+        with open('config.json', 'r') as f:
+            config = json.load(f)
+    except Exception as e:
+        logging.critical(f"Error reading config.json: {e}")
+        sys.exit(1)
+
     if not API_HASH or not API_ID or not CHANNEL_NAME:
         logging.critical("API_ID, API_HASH, or CHANNEL_NAME is not set in the .env file")
         sys.exit(1)
 
     try:
-        asyncio.run(start_script(API_ID, API_HASH, CHANNEL_NAME))
+        asyncio.run(start_script(API_ID, API_HASH, CHANNEL_NAME, config))
     except KeyboardInterrupt:
         logging.info("Программа остановлена пользователем")
         sys.exit(0)
